@@ -15,7 +15,7 @@ var DB *gorm.DB
 // Fungsi untuk menghubungkan ke database
 func ConnectDatabase() {
 	var err error
-	dsn := "partoba_test:Gurning123@tcp(db4free.net:3306)/partoba_test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:OEEYcvQBItzCMavRHbNQyWlFkrHXwBxU@tcp(shinkansen.proxy.rlwy.net:25817)/railway?charset=utf8mb4&parseTime=True&loc=Local"
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)

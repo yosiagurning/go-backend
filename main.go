@@ -118,30 +118,14 @@ type Claims struct {
 
 // 🔧 Fungsi untuk inisialisasi database
 func initDatabase() {
-	var err error
-	dsn := "partoba_test:Gurning123@tcp(db4free.net:3306)/partoba_test?charset=utf8mb4&parseTime=True&loc=Local"
 	database.ConnectDatabase()
-	// Koneksi ke database
-	database.DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatalf("❌ Gagal koneksi ke database: %v\n", err)
-		os.Exit(1)
-	}
-	fmt.Println("✅ Database connected successfully!")
 
-	// Pastikan database valid sebelum digunakan
 	if database.DB == nil {
 		log.Fatalf("❌ Koneksi database nil! Pastikan database berjalan.")
 		os.Exit(1)
 	}
 
-	// Migrasi database
-	err = database.DB.AutoMigrate(&models.Price{}, &models.MarketOfficer{}, &models.Market{}, &models.User{}, &models.Category{}, &models.Barang{}, &models.PriceHistory{})
-	if err != nil {
-		log.Fatalf("❌ Gagal migrasi database: %v\n", err)
-		os.Exit(1)
-	}
-	fmt.Println("✅ Database migrated successfully!")
+	fmt.Println("✅ Database sudah siap digunakan!")
 }
 
 // 🔐 Fungsi untuk menangani login dengan hashing password
