@@ -227,40 +227,54 @@ func GetBarangHistory(c *fiber.Ctx) error {
 
 // GetBarangByMarketID menampilkan semua barang yang berasal dari pasar tertentu
 // GetBarangByMarketID menampilkan semua barang yang berasal dari pasar tertentu
+// func GetBarangByMarketID(c *fiber.Ctx) error {
+// 	marketID := c.Params("marketId")
+
+// 	// First get all categories for this market
+// 	var categories []models.Category
+// 	if err := database.DB.
+// 		Where("JSON_CONTAINS(market_ids, ?)", marketID).
+// 		Find(&categories).Error; err != nil {
+// 		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil kategori berdasarkan market"})
+// 	}
+
+// 	// If no categories found, return empty array
+// 	if len(categories) == 0 {
+// 		return c.JSON([]models.Barang{})
+// 	}
+
+// 	// Extract category IDs
+// 	var categoryIDs []uint
+// 	for _, category := range categories {
+// 		categoryIDs = append(categoryIDs, category.ID)
+// 	}
+
+// 	// Get all products for these categories
+// 	var barang []models.Barang
+// 	if err := database.DB.
+// 		Where("category_id IN ?", categoryIDs).
+// 		Preload("Category").
+// 		Find(&barang).Error; err != nil {
+// 		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil data barang berdasarkan kategori"})
+// 	}
+
+//		return c.JSON(barang)
+//	}
 func GetBarangByMarketID(c *fiber.Ctx) error {
 	marketID := c.Params("marketId")
 
-	// First get all categories for this market
-	var categories []models.Category
-	if err := database.DB.
-		Where("JSON_CONTAINS(market_ids, ?)", marketID).
-		Find(&categories).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil kategori berdasarkan market"})
-	}
-
-	// If no categories found, return empty array
-	if len(categories) == 0 {
-		return c.JSON([]models.Barang{})
-	}
-
-	// Extract category IDs
-	var categoryIDs []uint
-	for _, category := range categories {
-		categoryIDs = append(categoryIDs, category.ID)
-	}
-
-	// Get all products for these categories
 	var barang []models.Barang
 	if err := database.DB.
-		Where("category_id IN ?", categoryIDs).
+		Joins("JOIN categories ON categories.id = barangs.category_id").
+		Joins("JOIN category_markets ON category_markets.category_id = categories.id").
+		Where("category_markets.market_id = ?", marketID).
 		Preload("Category").
 		Find(&barang).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil data barang berdasarkan kategori"})
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil data barang berdasarkan market"})
 	}
 
 	return c.JSON(barang)
 }
-
 func GetBarangByMarketIDPaginated(c *fiber.Ctx) error {
 	marketID := c.Params("marketId")
 	page := c.QueryInt("page", 1)
