@@ -205,10 +205,13 @@ func main() {
 	})
 
 	// Jalankan server di port 8081
-	port := ":8081"
-	fmt.Println("🚀 Server running on port", port)
-	// log.Fatal(app.Listen(port))
-	log.Fatal(app.Listen("0.0.0.0" + port))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8081" // fallback jika tidak di Railway
+	}
+	fmt.Println("🚀 Server running on port " + port)
+	log.Fatal(app.Listen(":" + port))
+	
 
 	fmt.Printf("🌍 Running in environment: %s\n", os.Getenv("APP_ENV"))
 
