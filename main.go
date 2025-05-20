@@ -204,7 +204,7 @@ func main() {
 		return c.JSON(fiber.Map{"message": "🚀 Golang Backend is Running!"})
 	})
 
-	// Jalankan server di port 8081
+	// Jalankan server di port 8080
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080" // fallback jika tidak di Railway
