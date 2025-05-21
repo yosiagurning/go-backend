@@ -194,6 +194,9 @@ func main() {
 
 	web := app.Group("/api")
 	web.Post("/login", loginHandler)
+	web.Get("/", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"message": "📡 API root aktif!"})
+	})
 
 	// Mobile routes
 	mobile := app.Group("/auth")
