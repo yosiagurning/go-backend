@@ -210,7 +210,7 @@ func main() {
 	// Jalankan server di port 8080
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // fallback jika tidak di Railway
+		port = "8081" // fallback jika tidak di Railway
 	}
 	fmt.Println("🚀 Server running on port " + port)
 	log.Fatal(app.Listen(":" + port))
