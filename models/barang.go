@@ -23,16 +23,6 @@ type Barang struct {
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
-// func MigrateBarang(db *gorm.DB) {
-// 	// 🔥 Drop dulu kalau ada kesalahan struktur sebelumnya
-// 	_ = db.Migrator().DropTable(&Barang{})
-
-// 	err := db.AutoMigrate(&Barang{})
-// 	if err != nil {
-// 		panic("❌ Gagal migrasi tabel Barang: " + err.Error())
-// 	}
-// }
-
 func MigrateBarang(db *gorm.DB) {
 	// Check if table exists first to avoid dropping existing data
 	if !db.Migrator().HasTable(&Barang{}) {
