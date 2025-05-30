@@ -84,6 +84,7 @@ func UpdateBarang(c *fiber.Ctx) error {
 		HargaPedagang2  float64 `json:"harga_pedagang2"`
 		HargaPedagang3  float64 `json:"harga_pedagang3"`
 		CategoryID      uint64  `json:"category_id"`
+		MarketID        uint    `json:"market_id"`
 		AlasanPerubahan string  `json:"alasan_perubahan"`
 	}
 

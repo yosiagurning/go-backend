@@ -18,6 +18,7 @@ type Barang struct {
 	HargaSekarang   float64        `json:"harga_sekarang"`
 	AlasanPerubahan string         `json:"alasan_perubahan"`
 	CategoryID      *uint          `json:"category_id"`
+	MarketID        uint           `json:"market_id"`
 	Category        Category       `gorm:"foreignKey:CategoryID" json:"category"`
 	TanggalUpdate   time.Time      `gorm:"autoUpdateTime" json:"tanggal_update"` // Add this field
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
