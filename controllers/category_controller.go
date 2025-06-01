@@ -183,18 +183,21 @@ func UpdateCategory(c *fiber.Ctx) error {
 // Hapus kategori berdasarkan ID
 func DeleteCategory(c *fiber.Ctx) error {
     id := c.Params("id")
-    marketIDStr := c.Query("market_id") // Ambil parameter opsional market_id
+    categoryID, err := strconv.Atoi(id)
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"error": "Invalid category ID"})
+    }
 
+    marketIDStr := c.Query("market_id")
     if marketIDStr != "" {
-        // Mode: Hapus relasi kategori dengan satu pasar
-        marketID, err := strconv.ParseUint(marketIDStr, 10, 64)
+        marketID, err := strconv.Atoi(marketIDStr)
         if err != nil {
             return c.Status(400).JSON(fiber.Map{"error": "Invalid market ID"})
         }
 
-        // Hapus hanya relasi antara kategori dan pasar spesifik
+        // ❗ Hapus hanya satu relasi kategori <-> pasar
         if err := database.DB.
-            Where("category_id = ? AND market_id = ?", id, marketID).
+            Where("category_id = ? AND market_id = ?", categoryID, marketID).
             Delete(&models.CategoryMarket{}).Error; err != nil {
             return c.Status(500).JSON(fiber.Map{"error": "Gagal menghapus relasi kategori-pasar"})
         }
@@ -202,19 +205,20 @@ func DeleteCategory(c *fiber.Ctx) error {
         return c.JSON(fiber.Map{"message": "Relasi kategori-pasar berhasil dihapus"})
     }
 
-    // Mode: Hapus seluruh kategori dan semua relasinya (mode admin global)
-    if err := database.DB.Where("category_id = ?", id).Delete(&models.CategoryMarket{}).Error; err != nil {
+    // ❗ Mode global: hapus semua relasi dan kategori
+    if err := database.DB.Where("category_id = ?", categoryID).Delete(&models.CategoryMarket{}).Error; err != nil {
         return c.Status(500).JSON(fiber.Map{"error": "Gagal menghapus relasi pasar"})
     }
 
-    if err := database.DB.Where("category_id = ?", id).Delete(&models.Price{}).Error; err != nil {
+    if err := database.DB.Where("category_id = ?", categoryID).Delete(&models.Price{}).Error; err != nil {
         return c.Status(500).JSON(fiber.Map{"error": "Gagal menghapus harga terkait"})
     }
 
-    if err := database.DB.Delete(&models.Category{}, id).Error; err != nil {
+    if err := database.DB.Delete(&models.Category{}, categoryID).Error; err != nil {
         return c.Status(500).JSON(fiber.Map{"error": "Gagal menghapus kategori"})
     }
 
     return c.JSON(fiber.Map{"message": "Kategori berhasil dihapus"})
 }
+
 
