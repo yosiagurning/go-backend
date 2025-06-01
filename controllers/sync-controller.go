@@ -215,16 +215,15 @@ func SyncBarangWithPrice(barangID uint64, tx *gorm.DB) error {
 	var price models.Price
 	if err := tx.Where("item_name = ?", barang.Nama).First(&price).Error; err != nil {
 		// Price doesn't exist, create a new one
-		var marketID, categoryID uint = 1, 1 // Default values
+		var marketID, categoryID uint
+		marketID = barang.MarketID // Langsung ambil dari field barang
+		
 		if barang.CategoryID != nil {
 			categoryID = uint(*barang.CategoryID)
-
-			// Try to find a market associated with this category
-			var categoryMarket models.CategoryMarket
-			if err := tx.Where("category_id = ?", categoryID).First(&categoryMarket).Error; err == nil {
-				marketID = categoryMarket.MarketID
-			}
+		} else {
+			categoryID = 1 // Default jika kosong
 		}
+		
 
 		newPrice := models.Price{
 			ItemID:       uint(barang.IdBarang),
