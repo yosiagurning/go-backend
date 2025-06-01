@@ -217,13 +217,12 @@ func SyncBarangWithPrice(barangID uint64, tx *gorm.DB) error {
 		// Price doesn't exist, create a new one
 		var marketID, categoryID uint
 		marketID = barang.MarketID // Langsung ambil dari field barang
-		
+
 		if barang.CategoryID != nil {
 			categoryID = uint(*barang.CategoryID)
 		} else {
 			categoryID = 1 // Default jika kosong
 		}
-		
 
 		newPrice := models.Price{
 			ItemID:       uint(barang.IdBarang),
@@ -314,19 +313,27 @@ func SyncPriceWithBarang(priceID uint, tx *gorm.DB) error {
 		// Barang doesn't exist, create a new one
 		avgPrice := price.CurrentPrice
 
+		// ✅ Validasi MarketID
+		marketID := price.MarketID
+		var market models.Market
+		if err := tx.First(&market, marketID).Error; err != nil {
+			// marketID tidak valid → fallback ke default 1
+			marketID = 1
+		}
+
 		newBarang := models.Barang{
 			Nama:            price.ItemName,
-			Satuan:          "unit", // Default value
+			Satuan:          "unit",
 			HargaPedagang1:  avgPrice,
 			HargaPedagang2:  avgPrice,
 			HargaPedagang3:  avgPrice,
 			HargaSebelumnya: price.InitialPrice,
 			HargaSekarang:   price.CurrentPrice,
 			AlasanPerubahan: price.Reason,
+			MarketID:        marketID, // ⬅️ penting!
 			TanggalUpdate:   time.Now(),
 		}
 
-		// Set category if available
 		if price.CategoryID > 0 {
 			categoryID := uint(price.CategoryID)
 			newBarang.CategoryID = &categoryID
@@ -338,7 +345,7 @@ func SyncPriceWithBarang(priceID uint, tx *gorm.DB) error {
 	} else {
 		// Barang exists, update it if needed
 		if barang.HargaSekarang != price.CurrentPrice {
-			// Create barang history before updating
+			// Simpan histori sebelum update
 			history := models.BarangHistory{
 				BarangID:       barang.IdBarang,
 				HargaPedagang1: barang.HargaPedagang1,
@@ -351,7 +358,7 @@ func SyncPriceWithBarang(priceID uint, tx *gorm.DB) error {
 				return fmt.Errorf("failed to create barang history: %v", err)
 			}
 
-			// Update barang
+			// Lanjut update barang
 			barang.HargaSebelumnya = barang.HargaSekarang
 			barang.HargaSekarang = price.CurrentPrice
 			barang.AlasanPerubahan = price.Reason
