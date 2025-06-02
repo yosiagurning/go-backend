@@ -34,7 +34,7 @@ func CreateBarang(c *fiber.Ctx) error {
 
 	// Set default values
 	barang.HargaSebelumnya = 0
-	barang.TanggalUpdate = time.Now()
+	barang.TanggalUpdate = time.Now().UTC()
 
 	// Validate category exists
 	var category models.Category
@@ -138,9 +138,10 @@ func UpdateBarang(c *fiber.Ctx) error {
 
 		existingBarang.HargaSebelumnya = existingBarang.HargaSekarang
 		existingBarang.HargaSekarang = newPrice
+		existingBarang.TanggalUpdate = time.Now().UTC()
 	}
 
-	existingBarang.TanggalUpdate = time.Now()
+	
 
 	if err := tx.Save(&existingBarang).Error; err != nil {
 		tx.Rollback()

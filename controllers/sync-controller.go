@@ -51,7 +51,7 @@ func SyncBarangAndPrice(c *fiber.Ctx) error {
 					price.ChangePercent = 0 // atau nilai lain yang sesuai
 				}
 				price.Reason = "Synchronized from mobile app"
-				price.UpdatedAt = time.Now()
+				price.UpdatedAt = time.Now().UTC()
 
 				if err := tx.Save(&price).Error; err != nil {
 					tx.Rollback()
@@ -68,7 +68,7 @@ func SyncBarangAndPrice(c *fiber.Ctx) error {
 					MarketID:      price.MarketID,
 					CategoryID:    price.CategoryID,
 					ChangePercent: price.ChangePercent,
-					CreatedAt:     time.Now(),
+					CreatedAt:     time.Now().UTC(),
 				}
 				if err := tx.Create(&history).Error; err != nil {
 					tx.Rollback()
@@ -97,8 +97,8 @@ func SyncBarangAndPrice(c *fiber.Ctx) error {
 				Reason:       "Created from mobile app data",
 				MarketID:     marketID,
 				CategoryID:   categoryID,
-				CreatedAt:    time.Now(),
-				UpdatedAt:    time.Now(),
+				CreatedAt:    time.Now().UTC(),
+				UpdatedAt:    time.Now().UTC(),
 			}
 
 			// Hitung persentase perubahan dengan aman (hindari pembagian dengan nol)
@@ -124,7 +124,7 @@ func SyncBarangAndPrice(c *fiber.Ctx) error {
 				MarketID:      newPrice.MarketID,
 				CategoryID:    newPrice.CategoryID,
 				ChangePercent: newPrice.ChangePercent,
-				CreatedAt:     time.Now(),
+				CreatedAt:     time.Now().UTC(),
 			}
 			if err := tx.Create(&history).Error; err != nil {
 				tx.Rollback()
@@ -145,7 +145,7 @@ func SyncBarangAndPrice(c *fiber.Ctx) error {
 					HargaPedagang2: barang.HargaPedagang2,
 					HargaPedagang3: barang.HargaPedagang3,
 					HargaSekarang:  barang.HargaSekarang,
-					TanggalUpdate:  time.Now(),
+					TanggalUpdate:  time.Now().UTC(),
 				}
 				if err := tx.Create(&history).Error; err != nil {
 					tx.Rollback()
@@ -156,7 +156,7 @@ func SyncBarangAndPrice(c *fiber.Ctx) error {
 				barang.HargaSebelumnya = barang.HargaSekarang
 				barang.HargaSekarang = price.CurrentPrice
 				barang.AlasanPerubahan = "Synchronized from web app"
-				barang.TanggalUpdate = time.Now()
+				barang.TanggalUpdate = time.Now().UTC()
 
 				if err := tx.Save(&barang).Error; err != nil {
 					tx.Rollback()
@@ -178,7 +178,7 @@ func SyncBarangAndPrice(c *fiber.Ctx) error {
 				HargaSebelumnya: price.InitialPrice,
 				HargaSekarang:   price.CurrentPrice,
 				AlasanPerubahan: "Created from web app data",
-				TanggalUpdate:   time.Now(),
+				TanggalUpdate:   time.Now().UTC(),
 			}
 
 			// Set category if available
@@ -232,8 +232,8 @@ func SyncBarangWithPrice(barangID uint64, tx *gorm.DB) error {
 			Reason:       barang.AlasanPerubahan,
 			MarketID:     marketID,
 			CategoryID:   categoryID,
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
+			CreatedAt:    time.Now().UTC(),
+			UpdatedAt:    time.Now().UTC(),
 		}
 
 		// Hitung persentase perubahan dengan aman (hindari pembagian dengan nol)
@@ -258,7 +258,7 @@ func SyncBarangWithPrice(barangID uint64, tx *gorm.DB) error {
 			MarketID:      newPrice.MarketID,
 			CategoryID:    newPrice.CategoryID,
 			ChangePercent: newPrice.ChangePercent,
-			CreatedAt:     time.Now(),
+			CreatedAt:     time.Now().UTC(),
 		}
 		if err := tx.Create(&history).Error; err != nil {
 			return fmt.Errorf("failed to create price history: %v", err)
@@ -274,7 +274,7 @@ func SyncBarangWithPrice(barangID uint64, tx *gorm.DB) error {
 				price.ChangePercent = 0 // atau nilai lain yang sesuai
 			}
 			price.Reason = barang.AlasanPerubahan
-			price.UpdatedAt = time.Now()
+			price.UpdatedAt = time.Now().UTC()
 
 			if err := tx.Save(&price).Error; err != nil {
 				return fmt.Errorf("failed to update price: %v", err)
@@ -290,7 +290,7 @@ func SyncBarangWithPrice(barangID uint64, tx *gorm.DB) error {
 				MarketID:      price.MarketID,
 				CategoryID:    price.CategoryID,
 				ChangePercent: price.ChangePercent,
-				CreatedAt:     time.Now(),
+				CreatedAt:     time.Now().UTC(),
 			}
 			if err := tx.Create(&history).Error; err != nil {
 				return fmt.Errorf("failed to create price history: %v", err)
@@ -331,7 +331,7 @@ func SyncPriceWithBarang(priceID uint, tx *gorm.DB) error {
 			HargaSekarang:   price.CurrentPrice,
 			AlasanPerubahan: price.Reason,
 			MarketID:        marketID, // ⬅️ penting!
-			TanggalUpdate:   time.Now(),
+			TanggalUpdate:   time.Now().UTC(),
 		}
 
 		if price.CategoryID > 0 {
@@ -352,7 +352,7 @@ func SyncPriceWithBarang(priceID uint, tx *gorm.DB) error {
 				HargaPedagang2: barang.HargaPedagang2,
 				HargaPedagang3: barang.HargaPedagang3,
 				HargaSekarang:  barang.HargaSekarang,
-				TanggalUpdate:  time.Now(),
+				TanggalUpdate:  time.Now().UTC(),
 			}
 			if err := tx.Create(&history).Error; err != nil {
 				return fmt.Errorf("failed to create barang history: %v", err)
@@ -362,7 +362,7 @@ func SyncPriceWithBarang(priceID uint, tx *gorm.DB) error {
 			barang.HargaSebelumnya = barang.HargaSekarang
 			barang.HargaSekarang = price.CurrentPrice
 			barang.AlasanPerubahan = price.Reason
-			barang.TanggalUpdate = time.Now()
+			barang.TanggalUpdate = time.Now().UTC()
 
 			if err := tx.Save(&barang).Error; err != nil {
 				return fmt.Errorf("failed to update barang: %v", err)

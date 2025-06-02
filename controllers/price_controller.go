@@ -134,6 +134,9 @@ func CreatePrice(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to create price history"})
 	}
 
+	price.CreatedAt = time.Now().UTC()
+    price.UpdatedAt = time.Now().UTC()
+
 	// Sync with barang table
 	if err := SyncPriceWithBarang(price.ID, tx); err != nil {
 		tx.Rollback()
@@ -183,6 +186,7 @@ func UpdatePrice(c *fiber.Ctx) error {
 
 	price.InitialPrice = price.CurrentPrice
 	price.CurrentPrice = input.CurrentPrice
+	price.UpdatedAt = time.Now().UTC()
 
 	if price.InitialPrice > 0 {
 		price.ChangePercent = ((price.CurrentPrice - price.InitialPrice) / price.InitialPrice) * 100

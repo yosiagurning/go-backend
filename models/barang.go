@@ -20,7 +20,7 @@ type Barang struct {
 	CategoryID      *uint          `json:"category_id"`
 	MarketID        uint           `json:"market_id"`
 	Category        Category       `gorm:"foreignKey:CategoryID" json:"category"`
-	TanggalUpdate   time.Time      `gorm:"autoUpdateTime" json:"tanggal_update"` // Add this field
+	TanggalUpdate   time.Time      `gorm:"column:tanggal_update" json:"tanggal_update"` // Add this field
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
